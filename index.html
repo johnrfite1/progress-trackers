@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>8-Week Reset Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --bg-card: linear-gradient(145deg, #14141e, #0f0f17);
+            --border: #2a2a3a;
+            --border-glow: #3a3a5a;
+            --text-primary: #f0f0f5;
+            --text-secondary: #9090a0;
+            --text-muted: #606070;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-glow: rgba(99, 102, 241, 0.25);
+            --success: #10b981;
+            --success-light: #34d399;
+            --success-glow: rgba(16, 185, 129, 0.25);
+            --warning: #f59e0b;
+            --purple: #a855f7;
+            --pink: #ec4899;
+            --cyan: #06b6d4;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            background-image:
+                radial-gradient(ellipse at top, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom right, rgba(168, 85, 247, 0.05) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 840px;
+            margin: 0 auto;
+            padding: 32px 20px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .header h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--text-primary), var(--accent-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.5px;
+        }
+
+        .header .dates {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--purple));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-2px);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.1;
+        }
+
+        .stat-value.complete {
+            background: linear-gradient(135deg, var(--success), var(--cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-section::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .progress-percent {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent), var(--pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .progress-bar-container {
+            background: var(--bg-primary);
+            border-radius: 12px;
+            height: 32px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--purple), var(--pink));
+            border-radius: 12px;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.15) 0%, transparent 50%);
+            border-radius: 12px;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: shimmer 2.5s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-markers {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 12px;
+            padding: 0 4px;
+        }
+
+        .progress-marker {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        /* Current Phase */
+        .current-phase {
+            background: linear-gradient(145deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.05));
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 20px;
+            padding: 24px 28px;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .current-phase::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent), var(--purple));
+            border-radius: 4px 0 0 4px;
+        }
+
+        .current-phase.complete {
+            background: linear-gradient(145deg, rgba(16, 185, 129, 0.1), rgba(6, 182, 212, 0.05));
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .current-phase.complete::before {
+            background: linear-gradient(180deg, var(--success), var(--cyan));
+        }
+
+        .phase-label {
+            font-size: 0.7rem;
+            color: var(--accent-light);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .current-phase.complete .phase-label {
+            color: var(--success-light);
+        }
+
+        .phase-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .phase-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Timeline */
+        .timeline-section {
+            margin-bottom: 28px;
+        }
+
+        .section-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .timeline {
+            position: relative;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 28px;
+            bottom: 28px;
+            width: 2px;
+            background: linear-gradient(180deg, var(--border), var(--border-glow), var(--border));
+            border-radius: 2px;
+        }
+
+        .milestone {
+            position: relative;
+            padding-left: 48px;
+            padding-bottom: 28px;
+            transition: all 0.3s ease;
+        }
+
+        .milestone:last-child {
+            padding-bottom: 0;
+        }
+
+        .milestone-dot {
+            position: absolute;
+            left: 6px;
+            top: 6px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--bg-tertiary);
+            border: 3px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .milestone.completed .milestone-dot {
+            background: var(--success);
+            border-color: var(--success);
+            box-shadow: 0 0 16px var(--success-glow);
+        }
+
+        .milestone.current .milestone-dot {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 20px var(--accent-glow); }
+            50% { box-shadow: 0 0 30px var(--accent-glow), 0 0 40px rgba(99, 102, 241, 0.1); }
+        }
+
+        .milestone-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .milestone.current .milestone-content {
+            border-color: rgba(99, 102, 241, 0.3);
+            background: linear-gradient(145deg, rgba(99, 102, 241, 0.05), transparent);
+        }
+
+        .milestone.completed .milestone-content {
+            opacity: 0.7;
+        }
+
+        .milestone:hover .milestone-content {
+            border-color: var(--border-glow);
+        }
+
+        .milestone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .milestone-title {
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .milestone.completed .milestone-title {
+            color: var(--success);
+        }
+
+        .milestone.current .milestone-title {
+            color: var(--accent-light);
+        }
+
+        .milestone-dates {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            background: var(--bg-primary);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .milestone-details {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .milestone-details li {
+            margin-bottom: 4px;
+            list-style: none;
+            position: relative;
+            padding-left: 18px;
+        }
+
+        .milestone-details li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        .milestone.current .milestone-details li::before {
+            color: var(--accent);
+            opacity: 1;
+        }
+
+        /* Benefits */
+        .benefits-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        @media (max-width: 600px) {
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .benefit-category {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .benefit-category:hover {
+            border-color: var(--border-glow);
+            transform: translateY(-2px);
+        }
+
+        .benefit-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .benefit-icon {
+            font-size: 1.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+        }
+
+        .benefit-title {
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        .benefit-list {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .benefit-list li {
+            list-style: none;
+            padding-left: 20px;
+            position: relative;
+            margin-bottom: 6px;
+        }
+
+        .benefit-list li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        /* Completion State */
+        .completion-banner {
+            background: linear-gradient(145deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.1));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 20px;
+            padding: 32px;
+            text-align: center;
+            margin-bottom: 28px;
+            display: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .completion-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at center, rgba(16, 185, 129, 0.1) 0%, transparent 70%);
+        }
+
+        .completion-banner.visible {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .completion-banner h2 {
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--success), var(--cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .completion-banner p {
+            color: var(--text-secondary);
+            position: relative;
+        }
+
+        .completion-icon {
+            font-size: 3rem;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .stat-card {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 16px 20px;
+            }
+
+            .stat-value {
+                font-size: 2rem;
+            }
+
+            .stat-label {
+                margin-top: 0;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <span class="header-icon">🧬</span>
+            <h1>8-Week Reset</h1>
+            <div class="dates">January 12 – March 9, 2026</div>
+        </header>
+
+        <div id="completion-banner" class="completion-banner">
+            <span class="completion-icon">🏆</span>
+            <h2>Mission Complete</h2>
+            <p>You've successfully completed the 8-week reset. True baseline established.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="current-day">—</div>
+                <div class="stat-label">Day</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="days-remaining">—</div>
+                <div class="stat-label">Days Left</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="weeks-complete">—</div>
+                <div class="stat-label">Weeks Done</div>
+            </div>
+        </div>
+
+        <section class="progress-section">
+            <div class="progress-header">
+                <span class="progress-title">Overall Progress</span>
+                <span class="progress-percent" id="progress-percent">0%</span>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+            </div>
+            <div class="progress-markers">
+                <span class="progress-marker">W1</span>
+                <span class="progress-marker">W2</span>
+                <span class="progress-marker">W3</span>
+                <span class="progress-marker">W4</span>
+                <span class="progress-marker">W5</span>
+                <span class="progress-marker">W6</span>
+                <span class="progress-marker">W7</span>
+                <span class="progress-marker">W8</span>
+            </div>
+        </section>
+
+        <div class="current-phase" id="current-phase">
+            <div class="phase-label">Current Phase</div>
+            <div class="phase-name" id="phase-name">—</div>
+            <div class="phase-description" id="phase-description">—</div>
+        </div>
+
+        <section class="timeline-section">
+            <h2 class="section-title">Milestone Timeline</h2>
+            <div class="timeline" id="timeline"></div>
+        </section>
+
+        <section class="benefits-section">
+            <h2 class="section-title">Expected Benefits</h2>
+            <div class="benefits-grid">
+                <div class="benefit-category">
+                    <div class="benefit-header">
+                        <div class="benefit-icon">🌙</div>
+                        <div class="benefit-title">Sleep</div>
+                    </div>
+                    <ul class="benefit-list">
+                        <li>REM restoration</li>
+                        <li>Morning alertness</li>
+                        <li>Deeper sleep cycles</li>
+                    </ul>
+                </div>
+                <div class="benefit-category">
+                    <div class="benefit-header">
+                        <div class="benefit-icon">🫀</div>
+                        <div class="benefit-title">Liver</div>
+                    </div>
+                    <ul class="benefit-list">
+                        <li>Enzyme normalization</li>
+                        <li>Improved fat metabolism</li>
+                        <li>Reduced inflammation</li>
+                    </ul>
+                </div>
+                <div class="benefit-category">
+                    <div class="benefit-header">
+                        <div class="benefit-icon">⚡</div>
+                        <div class="benefit-title">Metabolic</div>
+                    </div>
+                    <ul class="benefit-list">
+                        <li>~250-300 cal/day eliminated</li>
+                        <li>Improved insulin sensitivity</li>
+                    </ul>
+                </div>
+                <div class="benefit-category">
+                    <div class="benefit-header">
+                        <div class="benefit-icon">🧠</div>
+                        <div class="benefit-title">Cognitive</div>
+                    </div>
+                    <ul class="benefit-list">
+                        <li>Mood stabilization</li>
+                        <li>Executive function boost</li>
+                        <li>Evening clarity</li>
+                    </ul>
+                </div>
+                <div class="benefit-category">
+                    <div class="benefit-header">
+                        <div class="benefit-icon">❤️</div>
+                        <div class="benefit-title">Cardiovascular</div>
+                    </div>
+                    <ul class="benefit-list">
+                        <li>Blood pressure reduction</li>
+                        <li>Lower resting heart rate</li>
+                    </ul>
+                </div>
+                <div class="benefit-category">
+                    <div class="benefit-header">
+                        <div class="benefit-icon">🦠</div>
+                        <div class="benefit-title">Gut</div>
+                    </div>
+                    <ul class="benefit-list">
+                        <li>Microbiome improvement</li>
+                        <li>Better nutrient absorption</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            Last updated: <span id="last-updated"></span>
+        </footer>
+    </div>
+
+    <script>
+        // Configuration
+        const START_DATE = new Date('2026-01-12T00:00:00');
+        const END_DATE = new Date('2026-03-09T23:59:59');
+        const TOTAL_DAYS = 56;
+
+        // Milestones data
+        const MILESTONES = [
+            {
+                week: '1',
+                days: '1-7',
+                name: 'Adjustment Phase',
+                startDay: 1,
+                endDay: 7,
+                details: [
+                    'Sleep may temporarily worsen before improving',
+                    'Mild irritability possible',
+                    'Body clearing residual alcohol'
+                ]
+            },
+            {
+                week: '2-3',
+                days: '8-21',
+                name: 'Sleep Restoration',
+                startDay: 8,
+                endDay: 21,
+                details: [
+                    'REM sleep rebounds',
+                    'Liver enzymes normalizing',
+                    'Energy levels stabilizing',
+                    'Vivid dreams possible (normal)'
+                ]
+            },
+            {
+                week: '4',
+                days: '22-28',
+                name: 'Systemic Adaptation',
+                startDay: 22,
+                endDay: 28,
+                details: [
+                    'Gut microbiome shifting to healthier profile',
+                    'Blood pressure improvements',
+                    'Cognitive benefits emerging'
+                ]
+            },
+            {
+                week: '5-6',
+                days: '29-42',
+                name: 'Cognitive Clarity',
+                startDay: 29,
+                endDay: 42,
+                details: [
+                    'Full sleep architecture restoration',
+                    'Working memory improvements',
+                    'Evening mental bandwidth reclaimed',
+                    'Inflammation markers reduced'
+                ]
+            },
+            {
+                week: '7-8',
+                days: '43-56',
+                name: 'True Baseline',
+                startDay: 43,
+                endDay: 56,
+                details: [
+                    'Complete physiological reset',
+                    'Clean comparison data established',
+                    'Habit loop fully broken'
+                ]
+            }
+        ];
+
+        // Calculate current progress
+        function calculateProgress() {
+            const now = new Date();
+            const msPerDay = 24 * 60 * 60 * 1000;
+
+            const msElapsed = now - START_DATE;
+            const daysElapsed = Math.floor(msElapsed / msPerDay) + 1;
+
+            const currentDay = Math.max(0, Math.min(TOTAL_DAYS, daysElapsed));
+            const daysRemaining = Math.max(0, TOTAL_DAYS - currentDay);
+            const percentComplete = Math.min(100, Math.max(0, (currentDay / TOTAL_DAYS) * 100));
+            const weeksComplete = Math.floor((currentDay - 1) / 7);
+
+            let status = 'in_progress';
+            if (now < START_DATE) {
+                status = 'not_started';
+            } else if (now > END_DATE) {
+                status = 'complete';
+            }
+
+            return {
+                currentDay: status === 'not_started' ? 0 : currentDay,
+                daysRemaining: status === 'complete' ? 0 : daysRemaining,
+                percentComplete: status === 'complete' ? 100 : percentComplete,
+                weeksComplete: status === 'complete' ? 8 : weeksComplete,
+                status
+            };
+        }
+
+        function getCurrentPhase(currentDay) {
+            for (const milestone of MILESTONES) {
+                if (currentDay >= milestone.startDay && currentDay <= milestone.endDay) {
+                    return milestone;
+                }
+            }
+            if (currentDay > TOTAL_DAYS) {
+                return MILESTONES[MILESTONES.length - 1];
+            }
+            return MILESTONES[0];
+        }
+
+        function formatDate(date) {
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function getMilestoneDates(milestone) {
+            const startDate = new Date(START_DATE);
+            startDate.setDate(startDate.getDate() + milestone.startDay - 1);
+
+            const endDate = new Date(START_DATE);
+            endDate.setDate(endDate.getDate() + milestone.endDay - 1);
+
+            return formatDate(startDate) + ' – ' + formatDate(endDate);
+        }
+
+        function createMilestoneElement(milestone, milestoneStatus) {
+            const div = document.createElement('div');
+            div.className = 'milestone ' + milestoneStatus;
+
+            const dot = document.createElement('div');
+            dot.className = 'milestone-dot';
+            div.appendChild(dot);
+
+            const content = document.createElement('div');
+            content.className = 'milestone-content';
+
+            const header = document.createElement('div');
+            header.className = 'milestone-header';
+
+            const title = document.createElement('span');
+            title.className = 'milestone-title';
+            title.textContent = 'Week ' + milestone.week + ': ' + milestone.name;
+            header.appendChild(title);
+
+            const dates = document.createElement('span');
+            dates.className = 'milestone-dates';
+            dates.textContent = getMilestoneDates(milestone);
+            header.appendChild(dates);
+
+            content.appendChild(header);
+
+            const details = document.createElement('ul');
+            details.className = 'milestone-details';
+
+            milestone.details.forEach(function(detail) {
+                const li = document.createElement('li');
+                li.textContent = detail;
+                details.appendChild(li);
+            });
+
+            content.appendChild(details);
+            div.appendChild(content);
+
+            return div;
+        }
+
+        function renderTimeline(currentDay, status) {
+            const timeline = document.getElementById('timeline');
+
+            while (timeline.firstChild) {
+                timeline.removeChild(timeline.firstChild);
+            }
+
+            MILESTONES.forEach(function(milestone) {
+                let milestoneStatus = 'upcoming';
+                if (status === 'complete' || currentDay > milestone.endDay) {
+                    milestoneStatus = 'completed';
+                } else if (currentDay >= milestone.startDay && currentDay <= milestone.endDay) {
+                    milestoneStatus = 'current';
+                }
+
+                const element = createMilestoneElement(milestone, milestoneStatus);
+                timeline.appendChild(element);
+            });
+        }
+
+        function updateUI() {
+            const progress = calculateProgress();
+            const currentPhase = getCurrentPhase(progress.currentDay);
+
+            document.getElementById('current-day').textContent =
+                progress.status === 'not_started' ? '0' : String(progress.currentDay);
+            document.getElementById('days-remaining').textContent =
+                String(progress.daysRemaining);
+            document.getElementById('weeks-complete').textContent =
+                progress.weeksComplete + '/8';
+
+            document.getElementById('progress-percent').textContent =
+                Math.round(progress.percentComplete) + '%';
+            document.getElementById('progress-bar').style.width =
+                progress.percentComplete + '%';
+
+            const phaseContainer = document.getElementById('current-phase');
+            const phaseName = document.getElementById('phase-name');
+            const phaseDescription = document.getElementById('phase-description');
+
+            if (progress.status === 'complete') {
+                phaseName.textContent = 'Complete!';
+                phaseDescription.textContent =
+                    'You\'ve reached true baseline. All physiological systems reset.';
+                document.getElementById('completion-banner').classList.add('visible');
+                phaseContainer.classList.add('complete');
+                document.getElementById('current-day').classList.add('complete');
+            } else if (progress.status === 'not_started') {
+                phaseName.textContent = 'Starting Soon';
+                phaseDescription.textContent =
+                    'The 8-week reset begins January 12, 2026.';
+            } else {
+                phaseName.textContent = currentPhase.name;
+                phaseDescription.textContent = currentPhase.details[0];
+            }
+
+            renderTimeline(progress.currentDay, progress.status);
+
+            document.getElementById('last-updated').textContent =
+                new Date().toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                });
+        }
+
+        updateUI();
+        setInterval(updateUI, 60000);
+    </script>
+</body>
+</html>
