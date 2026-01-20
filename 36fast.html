@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>36-Hour Fast Tracker</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0f1117;
+            --bg-secondary: #151922;
+            --bg-card: rgba(20, 25, 34, 0.7);
+            --bg-card-hover: rgba(31, 38, 50, 0.85);
+            --border: rgba(148, 163, 184, 0.15);
+            --border-glow: rgba(148, 163, 184, 0.3);
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+
+            --accent: #f59e0b;
+            --accent-glow: rgba(245, 158, 11, 0.45);
+            --success: #14b8a6;
+            --success-glow: rgba(20, 184, 166, 0.45);
+
+            --gradient-primary: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+            --gradient-success: linear-gradient(135deg, #14b8a6 0%, #22d3ee 100%);
+
+            --color-metabolic: #f59e0b;
+            --color-brain: #22d3ee;
+            --color-recovery: #84cc16;
+            --color-inflammation: #f87171;
+        }
+
+        body {
+            font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(20, 184, 166, 0.12) 0%, transparent 40%),
+                radial-gradient(circle at 90% 10%, rgba(245, 158, 11, 0.15) 0%, transparent 45%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 60%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 40px 20px 56px;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            position: relative;
+        }
+
+        .header-icon {
+            font-size: 3.2rem;
+            margin-bottom: 16px;
+            display: inline-block;
+            filter: drop-shadow(0 0 18px rgba(245, 158, 11, 0.35));
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .header h1 {
+            font-family: 'Fraunces', 'Times New Roman', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 35%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .header .dates {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+            opacity: 0.9;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px 16px;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 8px;
+            backdrop-filter: blur(6px);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            opacity: 0.5;
+        }
+
+        .stat-value {
+            font-size: 2.6rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.1;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        /* Progress Section */
+        .progress-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 32px;
+            position: relative;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 20px;
+            gap: 12px;
+        }
+
+        .progress-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .progress-percent {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .progress-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .progress-meta span {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .hydration-note {
+            margin-left: auto;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid rgba(20, 184, 166, 0.3);
+            color: var(--success);
+            background: rgba(20, 184, 166, 0.1);
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            animation: pulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.2); }
+            50% { box-shadow: 0 0 0 10px rgba(20, 184, 166, 0); }
+        }
+
+        .progress-bar-container {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            height: 24px;
+            position: relative;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 16px;
+            position: relative;
+            width: 0%;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transform: translateX(-100%);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-markers {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 2px;
+        }
+
+        .progress-marker {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            position: relative;
+            cursor: default;
+            transition: color 0.3s;
+        }
+
+        .progress-marker.active {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Current Phase */
+        .current-phase {
+            background: linear-gradient(145deg, rgba(245, 158, 11, 0.1), rgba(20, 184, 166, 0.05));
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 24px;
+            padding: 32px;
+            margin-bottom: 32px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+        }
+
+        .current-phase::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 6px;
+            background: var(--gradient-primary);
+        }
+
+        .phase-label {
+            font-size: 0.75rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .phase-name {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #fff;
+        }
+
+        .phase-description {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            max-width: 90%;
+        }
+
+        .protocol-card,
+        .warning-card,
+        .refeed-section,
+        .checklist-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 32px;
+            backdrop-filter: blur(12px);
+        }
+
+        .protocol-card {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .protocol-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: var(--accent);
+            box-shadow: inset 0 0 12px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+
+        .protocol-list {
+            display: grid;
+            gap: 8px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        .protocol-list strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .protocol-note {
+            margin-top: 12px;
+            padding: 10px 14px;
+            background: rgba(20, 184, 166, 0.08);
+            border: 1px solid rgba(20, 184, 166, 0.2);
+            border-radius: 10px;
+            font-size: 0.85rem;
+            color: var(--success);
+        }
+
+        .warning-card {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .warning-panel {
+            border-radius: 16px;
+            padding: 18px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .warning-panel h3 {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 12px;
+        }
+
+        .warning-panel ul {
+            list-style: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .warning-panel li {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 18px;
+        }
+
+        .warning-panel li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-weight: bold;
+        }
+
+        .warning-panel.normal {
+            border-color: rgba(20, 184, 166, 0.3);
+        }
+
+        .warning-panel.normal h3,
+        .warning-panel.normal li::before {
+            color: var(--success);
+        }
+
+        .warning-panel.alert {
+            border-color: rgba(248, 113, 113, 0.35);
+            background: rgba(248, 113, 113, 0.08);
+        }
+
+        .warning-panel.alert h3,
+        .warning-panel.alert li::before {
+            color: #f87171;
+        }
+
+        /* Insight Section */
+        .quote-section {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 28px;
+            margin-bottom: 32px;
+            text-align: center;
+            position: relative;
+            backdrop-filter: blur(10px);
+        }
+
+        .quote-icon {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            color: var(--accent);
+            opacity: 0.8;
+        }
+
+        .quote-text {
+            font-size: 1.05rem;
+            font-style: italic;
+            color: var(--text-primary);
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .quote-author {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .quote-day-badge {
+            display: inline-block;
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--accent);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .refeed-section {
+            opacity: 0.4;
+            transition: all 0.5s ease;
+        }
+
+        .refeed-section.active {
+            opacity: 1;
+            border-color: rgba(20, 184, 166, 0.4);
+            box-shadow: 0 0 20px rgba(20, 184, 166, 0.12);
+        }
+
+        .refeed-steps {
+            display: grid;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .refeed-step {
+            display: grid;
+            grid-template-columns: 140px 1fr;
+            gap: 16px;
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .refeed-step strong {
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .refeed-step span {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .refeed-warning {
+            margin-top: 16px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-left: 3px solid var(--success);
+            padding-left: 12px;
+            font-style: italic;
+        }
+
+        .checklist-section ul {
+            list-style: none;
+            display: grid;
+            gap: 10px;
+            color: var(--text-secondary);
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+        }
+
+        .checklist-item.checked {
+            color: var(--text-primary);
+            border-color: rgba(20, 184, 166, 0.3);
+            background: rgba(20, 184, 166, 0.08);
+        }
+
+        /* Timeline */
+        .timeline-section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 12px;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .section-line {
+            flex-grow: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .timeline-line-bg {
+            position: absolute;
+            left: 29px;
+            top: 20px;
+            bottom: 40px;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 2px;
+            z-index: 0;
+        }
+
+        .timeline-line-progress {
+            position: absolute;
+            left: 29px;
+            top: 20px;
+            width: 2px;
+            height: 0;
+            background: var(--gradient-primary);
+            border-radius: 2px;
+            z-index: 1;
+            transition: height 1.5s ease-out;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .milestone {
+            position: relative;
+            padding-left: 60px;
+            padding-bottom: 40px;
+            z-index: 2;
+        }
+
+        .milestone:last-child {
+            padding-bottom: 0;
+        }
+
+        .milestone-dot {
+            position: absolute;
+            left: 20px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            border: 2px solid var(--text-muted);
+            transition: all 0.4s ease;
+            box-shadow: 0 0 0 4px var(--bg-primary);
+        }
+
+        .milestone.completed .milestone-dot {
+            background: var(--accent);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--bg-primary), 0 0 15px var(--accent-glow);
+        }
+
+        .milestone.current .milestone-dot {
+            background: var(--bg-primary);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--bg-primary), 0 0 20px var(--accent-glow);
+            transform: scale(1.3);
+            animation: pulse-dot 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0% { box-shadow: 0 0 0 4px var(--bg-primary), 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { box-shadow: 0 0 0 4px var(--bg-primary), 0 0 0 10px rgba(245, 158, 11, 0); }
+            100% { box-shadow: 0 0 0 4px var(--bg-primary), 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+
+        .milestone-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .milestone.current .milestone-content {
+            border-color: var(--accent);
+            background: linear-gradient(145deg, rgba(245, 158, 11, 0.08), rgba(20, 20, 30, 0.6));
+            transform: translateX(5px);
+        }
+
+        .milestone.completed .milestone-content {
+            opacity: 0.6;
+        }
+
+        .milestone.completed:hover .milestone-content {
+            opacity: 1;
+        }
+
+        .milestone-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .milestone-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #fff;
+        }
+
+        .milestone-week {
+            font-size: 0.75rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+            margin-right: 8px;
+        }
+
+        .milestone-dates {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            background: rgba(255,255,255,0.05);
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .milestone-details li {
+            list-style: none;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .milestone-details li::before {
+            content: '';
+            color: var(--accent);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        /* Benefits Grid */
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .benefit-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            background: var(--bg-card-hover);
+            border-color: var(--card-color);
+        }
+
+        .benefit-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: var(--card-color);
+            opacity: 0.7;
+        }
+
+        .benefit-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .benefit-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: var(--card-color);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+        }
+
+        .benefit-title {
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #fff;
+        }
+
+        .benefit-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .benefit-item.completed {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .benefit-item.pending {
+            opacity: 0.5;
+        }
+
+        .benefit-icon-status {
+            flex-shrink: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .benefit-item.completed .benefit-icon-status {
+            color: var(--card-color);
+        }
+
+        .benefit-item.pending .benefit-icon-status {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 56px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        @media (max-width: 700px) {
+            .header h1 { font-size: 2.2rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .progress-header { flex-direction: column; align-items: flex-start; }
+            .progress-meta { flex-direction: column; align-items: flex-start; }
+            .hydration-note { margin-left: 0; }
+            .protocol-card { flex-direction: column; }
+            .refeed-step { grid-template-columns: 1fr; }
+            .milestone { padding-left: 40px; }
+            .timeline-line-bg, .timeline-line-progress { left: 9px; }
+            .milestone-dot { left: 0; }
+            .benefits-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <span class="header-icon">🔥</span>
+            <h1>36-Hour Fast</h1>
+            <div class="dates" id="date-range">Loading schedule...</div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="current-hour">0</div>
+                <div class="stat-label">Current Hour</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="hours-remaining">36</div>
+                <div class="stat-label">Hours Left</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="nights-complete">0/2</div>
+                <div class="stat-label">Nights Complete</div>
+            </div>
+        </div>
+
+        <section class="progress-section">
+            <div class="progress-header">
+                <span class="progress-title">Metabolic Shift</span>
+                <span class="progress-percent" id="progress-percent">0%</span>
+            </div>
+            <div class="progress-meta">
+                <div>Current time: <span id="current-time">--</span></div>
+                <div>Next milestone: <span id="next-milestone">--</span> in <span id="next-countdown">--:--:--</span></div>
+                <div class="hydration-note" id="hydration-note" style="display: none;">Hydration reminder</div>
+            </div>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            <div class="progress-markers" id="progress-markers"></div>
+        </section>
+
+        <div class="current-phase" id="current-phase">
+            <div class="phase-label">Current Phase</div>
+            <div class="phase-name" id="phase-name">Loading...</div>
+            <div class="phase-description" id="phase-description">Analyzing timeline data...</div>
+        </div>
+
+        <section class="protocol-card">
+            <div class="protocol-icon">🧂</div>
+            <div>
+                <h2 class="section-title" style="margin-bottom: 8px;">Electrolyte Protocol</h2>
+                <div class="protocol-list">
+                    <div><strong>What:</strong> Morton Lite Salt or Nu-Salt (sodium + potassium blend)</div>
+                    <div><strong>How:</strong> Small pinch (1/8 tsp) on tongue, several times throughout the day</div>
+                    <div><strong>When:</strong> As needed, especially if feeling off</div>
+                    <div><strong>Why:</strong> Prevents headaches, muscle cramps, heart palpitations, brain fog</div>
+                    <div><strong>Plus:</strong> Magnesium glycinate 200-400mg in the evening</div>
+                </div>
+                <div class="protocol-note">Less critical than a 72-hour fast, but still important — especially if you feel off.</div>
+            </div>
+        </section>
+
+        <section class="warning-card">
+            <div class="warning-panel normal">
+                <h3>Normal (ride it out)</h3>
+                <ul>
+                    <li>Hunger waves (peak around hours 16-20, then fade)</li>
+                    <li>Mild headache (usually hydration or electrolytes)</li>
+                    <li>Irritability, shorter patience</li>
+                    <li>Feeling cold</li>
+                    <li>Difficulty sleeping Saturday night</li>
+                </ul>
+            </div>
+            <div class="warning-panel alert">
+                <h3>Warning — Take Electrolytes</h3>
+                <ul>
+                    <li>Heart palpitations or racing heart</li>
+                    <li>Muscle cramps</li>
+                    <li>Dizziness when standing</li>
+                    <li>Persistent headache not relieved by water</li>
+                </ul>
+            </div>
+        </section>
+
+        <div class="quote-section" id="quote-section">
+            <div class="quote-day-badge">Fast Insight</div>
+            <div class="quote-text" id="quote-text">"Loading focus..."</div>
+            <div class="quote-author" id="quote-author"></div>
+        </div>
+
+        <section class="refeed-section" id="refeed-section">
+            <div class="section-header">
+                <h2 class="section-title">Refeeding Protocol</h2>
+                <div class="section-line"></div>
+            </div>
+            <div class="refeed-steps">
+                <div class="refeed-step">
+                    <strong>Breaking the fast</strong>
+                    <span>2-3 eggs + half avocado, or similar protein/fat combo</span>
+                </div>
+                <div class="refeed-step">
+                    <strong>1-2 hours later</strong>
+                    <span>Normal meal, moderate portion</span>
+                </div>
+                <div class="refeed-step">
+                    <strong>Avoid first meal</strong>
+                    <span>Don't slam a huge breakfast or heavy carbs immediately</span>
+                </div>
+            </div>
+            <div class="refeed-warning">Your digestive system slowed down but didn't shut off. Eat mindfully but don't overthink it.</div>
+        </section>
+
+        <section class="timeline-section">
+            <div class="section-header">
+                <h2 class="section-title">Metabolic Timeline</h2>
+                <div class="section-line"></div>
+            </div>
+            <div class="timeline" id="timeline">
+                <div class="timeline-line-bg"></div>
+                <div class="timeline-line-progress" id="timeline-progress-line"></div>
+            </div>
+        </section>
+
+        <section class="benefits-section">
+            <div class="section-header">
+                <h2 class="section-title">Body Signals</h2>
+                <div class="section-line"></div>
+            </div>
+            <div class="benefits-grid" id="benefits-grid"></div>
+        </section>
+
+        <section class="checklist-section">
+            <div class="section-header">
+                <h2 class="section-title">Staging Checklist</h2>
+                <div class="section-line"></div>
+            </div>
+            <ul id="checklist"></ul>
+        </section>
+
+        <footer class="footer">
+            <p>Last updated: <span id="last-updated"></span></p>
+        </footer>
+    </div>
+
+    <script>
+        // Configuration - all data is hardcoded, no external input
+        const TOTAL_HOURS = 36;
+        const START_DATE = new Date('2026-04-03T20:00:00');
+        const END_DATE = new Date(START_DATE.getTime() + TOTAL_HOURS * 60 * 60 * 1000 - 1000);
+
+        const MILESTONES = [
+            {
+                label: '1-12h',
+                name: 'Glycogen Depletion',
+                startHour: 1,
+                endHour: 12,
+                details: [
+                    'Insulin dropping, hunger waves peak then fade',
+                    'Liver glycogen depleting',
+                    'Stay hydrated, black coffee OK'
+                ]
+            },
+            {
+                label: '13-24h',
+                name: 'Metabolic Transition',
+                startHour: 13,
+                endHour: 24,
+                details: [
+                    'Fat mobilization begins',
+                    'Ketones starting to rise',
+                    'Energy steadies after initial dip',
+                    'Ghrelin (hunger hormone) usually peaks around hour 18-20'
+                ]
+            },
+            {
+                label: '25-36h',
+                name: 'Autophagy Ramp-Up',
+                startHour: 25,
+                endHour: 36,
+                details: [
+                    'Autophagy signaling increases',
+                    'Mental clarity often improves',
+                    'Fat oxidation dominant',
+                    'Inflammation markers begin dropping'
+                ]
+            }
+        ];
+
+        const BENEFITS = [
+            {
+                id: 'metabolic',
+                title: 'Metabolic',
+                icon: '⚡',
+                colorVar: '--color-metabolic',
+                items: [
+                    { text: 'Insulin levels drop meaningfully', minHour: 12 },
+                    { text: 'Liver glycogen depleted', minHour: 18 },
+                    { text: 'Ketone production ramping', minHour: 28 }
+                ]
+            },
+            {
+                id: 'brain',
+                title: 'Brain',
+                icon: '🧠',
+                colorVar: '--color-brain',
+                items: [
+                    { text: 'Initial fog/irritability passes', minHour: 16 },
+                    { text: 'Mental clarity improves', minHour: 26 },
+                    { text: 'Focus sharpens', minHour: 32 }
+                ]
+            },
+            {
+                id: 'recovery',
+                title: 'Recovery',
+                icon: '🛠️',
+                colorVar: '--color-recovery',
+                items: [
+                    { text: 'Growth hormone pulses increase', minHour: 16 },
+                    { text: 'Cellular repair signaling active', minHour: 24 },
+                    { text: 'Autophagy ramping up', minHour: 30 }
+                ]
+            },
+            {
+                id: 'inflammation',
+                title: 'Inflammation',
+                icon: '🩹',
+                colorVar: '--color-inflammation',
+                items: [
+                    { text: 'Digestive rest underway', minHour: 12 },
+                    { text: 'Water retention dropping', minHour: 20 },
+                    { text: 'Inflammation markers easing', minHour: 30 }
+                ]
+            }
+        ];
+
+        const INSIGHTS = [
+            { hours: [1, 12], text: "The first 12 hours are mostly psychological. Your body has plenty of reserves — your brain is just loudly objecting to the change in routine.", author: "Fast insight" },
+            { hours: [13, 24], text: "Hunger comes in waves. Ride each one for 15 minutes and notice it pass. They get smaller.", author: "Fast insight" },
+            { hours: [25, 36], text: "You're in the window now. Autophagy is ramping, inflammation is dropping. Finish clean.", author: "Fast insight" },
+            { hours: [1, 100], text: "Discipline is choosing between what you want now and what you want most.", author: "Abraham Lincoln" }
+        ];
+
+        const CHECKLIST_ITEMS = [
+            'Lite Salt or Nu-Salt',
+            'Magnesium glycinate',
+            'Eggs',
+            'Avocado',
+            'Water bottle',
+            'Light dinner planned for Friday (protein/fat, low carb)'
+        ];
+
+        function getProgress() {
+            const now = new Date();
+            const totalMs = END_DATE - START_DATE;
+            const elapsedMs = now - START_DATE;
+
+            let percent = (elapsedMs / totalMs) * 100;
+            percent = Math.max(0, Math.min(100, percent));
+
+            const hoursElapsed = Math.floor(elapsedMs / (1000 * 60 * 60)) + 1;
+            const currentHour = Math.max(0, Math.min(TOTAL_HOURS, hoursElapsed));
+
+            // Calculate nights complete based on time
+            // Night 1: Friday night (first night of fasting)
+            // Night 2: Saturday night (second night of fasting, ends Sunday morning)
+            let nightsComplete = 0;
+            const saturdayMorning = new Date(START_DATE.getTime() + 12 * 60 * 60 * 1000);
+            const sundayMorning = new Date(START_DATE.getTime() + 36 * 60 * 60 * 1000);
+
+            if (now >= sundayMorning) {
+                nightsComplete = 2;
+            } else if (now >= saturdayMorning) {
+                nightsComplete = 1;
+            }
+
+            return {
+                percent,
+                currentHour,
+                hoursRemaining: Math.max(0, TOTAL_HOURS - currentHour),
+                nightsComplete,
+                isStarted: now >= START_DATE,
+                isComplete: now > END_DATE
+            };
+        }
+
+        function formatTime(date) {
+            return date.toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit' });
+        }
+
+        function formatCountdown(ms) {
+            const clamped = Math.max(0, ms);
+            const totalSeconds = Math.floor(clamped / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+        }
+
+        function formatDateRange() {
+            const options = { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' };
+            const start = START_DATE.toLocaleString('en-US', options);
+            const end = END_DATE.toLocaleString('en-US', options);
+            return start + ' – ' + end;
+        }
+
+        function formatHourRange(startHour, endHour) {
+            const start = new Date(START_DATE.getTime() + (startHour - 1) * 60 * 60 * 1000);
+            const end = new Date(START_DATE.getTime() + (endHour - 1) * 60 * 60 * 1000);
+            const options = { hour: 'numeric', minute: '2-digit' };
+            return start.toLocaleString('en-US', options) + ' – ' + end.toLocaleString('en-US', options);
+        }
+
+        function getInsightForHour(hour) {
+            const specific = INSIGHTS.find(function(i) {
+                return hour >= i.hours[0] && hour <= i.hours[1] && i.hours[1] <= 36;
+            });
+            if (specific) return specific;
+            return INSIGHTS[INSIGHTS.length - 1];
+        }
+
+        function renderInsight(currentHour) {
+            const data = getInsightForHour(currentHour);
+            document.getElementById('quote-text').textContent = '"' + data.text + '"';
+            document.getElementById('quote-author').textContent = '— ' + data.author;
+        }
+
+        function renderChecklist() {
+            const list = document.getElementById('checklist');
+            list.textContent = '';
+            const saved = JSON.parse(localStorage.getItem('fast36Checklist') || '{}');
+
+            CHECKLIST_ITEMS.forEach(function(item, index) {
+                const li = document.createElement('li');
+                li.className = 'checklist-item';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = 'check-' + index;
+                checkbox.checked = Boolean(saved[index]);
+
+                const label = document.createElement('label');
+                label.htmlFor = checkbox.id;
+                label.textContent = item;
+
+                if (checkbox.checked) {
+                    li.classList.add('checked');
+                }
+
+                checkbox.addEventListener('change', function() {
+                    const next = JSON.parse(localStorage.getItem('fast36Checklist') || '{}');
+                    next[index] = checkbox.checked;
+                    localStorage.setItem('fast36Checklist', JSON.stringify(next));
+                    li.classList.toggle('checked', checkbox.checked);
+                });
+
+                li.appendChild(checkbox);
+                li.appendChild(label);
+                list.appendChild(li);
+            });
+        }
+
+        function renderBenefits(currentHour) {
+            const container = document.getElementById('benefits-grid');
+            container.textContent = '';
+
+            BENEFITS.forEach(function(category) {
+                const card = document.createElement('div');
+                card.className = 'benefit-card';
+                card.style.setProperty('--card-color', 'var(' + category.colorVar + ')');
+
+                const header = document.createElement('div');
+                header.className = 'benefit-header';
+
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'benefit-icon';
+                iconDiv.textContent = category.icon;
+
+                const titleDiv = document.createElement('div');
+                titleDiv.className = 'benefit-title';
+                titleDiv.textContent = category.title;
+
+                header.appendChild(iconDiv);
+                header.appendChild(titleDiv);
+                card.appendChild(header);
+
+                const list = document.createElement('div');
+                list.className = 'benefit-list';
+
+                category.items.forEach(function(item) {
+                    const isCompleted = currentHour >= item.minHour;
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'benefit-item ' + (isCompleted ? 'completed' : 'pending');
+
+                    const statusDiv = document.createElement('div');
+                    statusDiv.className = 'benefit-icon-status';
+                    statusDiv.textContent = isCompleted ? '✓' : '○';
+
+                    const textDiv = document.createElement('div');
+                    textDiv.textContent = item.text;
+
+                    if (!isCompleted) {
+                        const hourSpan = document.createElement('span');
+                        hourSpan.style.fontSize = '0.7em';
+                        hourSpan.style.opacity = '0.6';
+                        hourSpan.style.display = 'block';
+                        hourSpan.textContent = '(Hour ' + item.minHour + ')';
+                        textDiv.appendChild(hourSpan);
+                    }
+
+                    itemEl.appendChild(statusDiv);
+                    itemEl.appendChild(textDiv);
+                    list.appendChild(itemEl);
+                });
+
+                card.appendChild(list);
+                container.appendChild(card);
+            });
+        }
+
+        function renderTimeline(progress) {
+            const timelineContainer = document.getElementById('timeline');
+            const existingMilestones = timelineContainer.querySelectorAll('.milestone');
+            existingMilestones.forEach(function(m) { m.remove(); });
+
+            let activePhaseFound = false;
+
+            MILESTONES.forEach(function(m) {
+                const isPast = progress.currentHour > m.endHour;
+                const isCurrent = progress.currentHour >= m.startHour && progress.currentHour <= m.endHour;
+
+                const div = document.createElement('div');
+                div.className = 'milestone' + (isPast ? ' completed' : '') + (isCurrent ? ' current' : '');
+
+                const dot = document.createElement('div');
+                dot.className = 'milestone-dot';
+                div.appendChild(dot);
+
+                const content = document.createElement('div');
+                content.className = 'milestone-content';
+
+                const header = document.createElement('div');
+                header.className = 'milestone-header';
+
+                const titleWrap = document.createElement('div');
+
+                const weekSpan = document.createElement('span');
+                weekSpan.className = 'milestone-week';
+                weekSpan.textContent = 'Hours ' + m.label;
+
+                const titleSpan = document.createElement('span');
+                titleSpan.className = 'milestone-title';
+                titleSpan.textContent = m.name;
+
+                titleWrap.appendChild(weekSpan);
+                titleWrap.appendChild(titleSpan);
+
+                const datesSpan = document.createElement('span');
+                datesSpan.className = 'milestone-dates';
+                datesSpan.textContent = formatHourRange(m.startHour, m.endHour);
+
+                header.appendChild(titleWrap);
+                header.appendChild(datesSpan);
+                content.appendChild(header);
+
+                const detailsUl = document.createElement('ul');
+                detailsUl.className = 'milestone-details';
+                m.details.forEach(function(d) {
+                    const li = document.createElement('li');
+                    li.textContent = d;
+                    detailsUl.appendChild(li);
+                });
+                content.appendChild(detailsUl);
+
+                div.appendChild(content);
+                timelineContainer.appendChild(div);
+
+                if (isCurrent) {
+                    activePhaseFound = true;
+                    document.getElementById('phase-name').textContent = m.name;
+                    document.getElementById('phase-description').textContent = m.details[0];
+                }
+            });
+
+            if (!activePhaseFound) {
+                if (progress.percent >= 100) {
+                    document.getElementById('phase-name').textContent = 'Fast Complete';
+                    document.getElementById('phase-description').textContent = 'Refeed gently and celebrate the reset.';
+                } else if (progress.percent <= 0) {
+                    document.getElementById('phase-name').textContent = 'Preparation';
+                    document.getElementById('phase-description').textContent = 'Hydrate, set intentions, and begin calmly.';
+                }
+            }
+        }
+
+        function render() {
+            const progress = getProgress();
+
+            document.getElementById('current-hour').textContent = progress.currentHour;
+            document.getElementById('hours-remaining').textContent = progress.hoursRemaining;
+            document.getElementById('nights-complete').textContent = progress.nightsComplete + '/2';
+            document.getElementById('date-range').textContent = formatDateRange();
+            document.getElementById('current-time').textContent = formatTime(new Date());
+
+            document.getElementById('progress-percent').textContent = Math.floor(progress.percent) + '%';
+            document.getElementById('progress-bar').style.width = progress.percent + '%';
+
+            // Progress markers: H0, H12, H24, H36
+            const markersContainer = document.getElementById('progress-markers');
+            markersContainer.textContent = '';
+            for (let i = 0; i <= 36; i += 12) {
+                const span = document.createElement('span');
+                span.className = 'progress-marker' + (progress.currentHour >= i ? ' active' : '');
+                span.textContent = 'H' + i;
+                markersContainer.appendChild(span);
+            }
+
+            // Hydration note visible between hours 12-30
+            const hydrationNote = document.getElementById('hydration-note');
+            hydrationNote.style.display = (progress.currentHour >= 12 && progress.currentHour <= 30) ? 'inline-flex' : 'none';
+
+            const nextMilestone = MILESTONES.find(function(m) { return progress.currentHour < m.startHour; });
+            const nextTarget = nextMilestone ? new Date(START_DATE.getTime() + (nextMilestone.startHour - 1) * 60 * 60 * 1000) : END_DATE;
+            document.getElementById('next-milestone').textContent = nextMilestone ? nextMilestone.name : 'Fast complete';
+            document.getElementById('next-countdown').textContent = formatCountdown(nextTarget - new Date());
+
+            renderTimeline(progress);
+
+            const timelineLine = document.getElementById('timeline-progress-line');
+            timelineLine.style.height = 'calc(' + progress.percent + '% - 20px)';
+
+            // Refeed section visible when currentHour >= 30
+            const refeedSection = document.getElementById('refeed-section');
+            refeedSection.classList.toggle('active', progress.currentHour >= 30);
+
+            renderBenefits(progress.currentHour);
+            renderInsight(progress.currentHour);
+
+            document.getElementById('last-updated').textContent = new Date().toLocaleString();
+        }
+
+        renderChecklist();
+        render();
+        setInterval(render, 1000);
+    </script>
+</body>
+</html>
