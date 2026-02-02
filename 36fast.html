@@ -36,6 +36,8 @@
             --color-brain: #22d3ee;
             --color-recovery: #84cc16;
             --color-inflammation: #f87171;
+            --color-hormonal: #c084fc;
+            --color-gut: #34d399;
         }
 
         body {
@@ -992,7 +994,7 @@
     <script>
         // Configuration - all data is hardcoded, no external input
         const TOTAL_HOURS = 36;
-        const START_DATE = new Date('2026-01-23T20:00:00');
+        const START_DATE = new Date('2026-03-28T04:00:00Z');
         const END_DATE = new Date(START_DATE.getTime() + TOTAL_HOURS * 60 * 60 * 1000 - 1000);
 
         const MILESTONES = [
@@ -1040,8 +1042,10 @@
                 icon: '⚡',
                 colorVar: '--color-metabolic',
                 items: [
+                    { text: 'Blood glucose stabilizing at fasting baseline', minHour: 8 },
                     { text: 'Insulin levels drop meaningfully', minHour: 12 },
                     { text: 'Liver glycogen depleted', minHour: 18 },
+                    { text: 'Fat mobilization from adipose tissue', minHour: 22 },
                     { text: 'Ketone production ramping', minHour: 28 }
                 ]
             },
@@ -1052,8 +1056,22 @@
                 colorVar: '--color-brain',
                 items: [
                     { text: 'Initial fog/irritability passes', minHour: 16 },
+                    { text: 'BDNF (brain growth factor) production increasing', minHour: 20 },
                     { text: 'Mental clarity improves', minHour: 26 },
-                    { text: 'Focus sharpens', minHour: 32 }
+                    { text: 'Focus sharpens', minHour: 32 },
+                    { text: 'Norepinephrine-driven alertness peaks', minHour: 34 }
+                ]
+            },
+            {
+                id: 'hormonal',
+                title: 'Hormonal',
+                icon: '🔄',
+                colorVar: '--color-hormonal',
+                items: [
+                    { text: 'Ghrelin (hunger hormone) peaks then subsides', minHour: 6 },
+                    { text: 'Insulin sensitivity resetting', minHour: 14 },
+                    { text: 'Cortisol rhythm normalizing', minHour: 24 },
+                    { text: 'Growth hormone at elevated plateau', minHour: 32 }
                 ]
             },
             {
@@ -1063,8 +1081,22 @@
                 colorVar: '--color-recovery',
                 items: [
                     { text: 'Growth hormone pulses increase', minHour: 16 },
+                    { text: 'Damaged protein clearance begins', minHour: 20 },
                     { text: 'Cellular repair signaling active', minHour: 24 },
-                    { text: 'Autophagy ramping up', minHour: 30 }
+                    { text: 'Autophagy ramping up', minHour: 30 },
+                    { text: 'Stem cell signaling activated', minHour: 34 }
+                ]
+            },
+            {
+                id: 'gut',
+                title: 'Gut Reset',
+                icon: '🦠',
+                colorVar: '--color-gut',
+                items: [
+                    { text: 'Digestive system entering rest mode', minHour: 8 },
+                    { text: 'Migrating motor complex activated', minHour: 14 },
+                    { text: 'Intestinal lining repair accelerating', minHour: 24 },
+                    { text: 'Microbiome rebalancing underway', minHour: 32 }
                 ]
             },
             {
@@ -1074,8 +1106,10 @@
                 colorVar: '--color-inflammation',
                 items: [
                     { text: 'Digestive rest underway', minHour: 12 },
+                    { text: 'Gut lining repair initiating', minHour: 16 },
                     { text: 'Water retention dropping', minHour: 20 },
-                    { text: 'Inflammation markers easing', minHour: 30 }
+                    { text: 'Inflammation markers easing', minHour: 30 },
+                    { text: 'Systemic inflammatory load reduced', minHour: 34 }
                 ]
             }
         ];

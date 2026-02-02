@@ -36,6 +36,10 @@
             --color-brain: #22d3ee;
             --color-recovery: #84cc16;
             --color-inflammation: #f87171;
+            --color-hormonal: #c084fc;
+            --color-immune: #67e8f9;
+            --color-gut: #34d399;
+            --color-energy: #fdba74;
         }
 
         body {
@@ -985,7 +989,7 @@
 
     <script>
         const TOTAL_HOURS = 72;
-        const START_DATE = new Date('2026-02-26T20:00:00');
+        const START_DATE = new Date('2026-02-27T04:00:00Z');
         const END_DATE = new Date(START_DATE.getTime() + TOTAL_HOURS * 60 * 60 * 1000 - 1000);
 
         const MILESTONES = [
@@ -1041,8 +1045,11 @@
                 colorVar: '--color-metabolic',
                 items: [
                     { text: 'Insulin levels drop meaningfully', minHour: 12 },
+                    { text: 'Glycogen stores fully depleted', minHour: 18 },
                     { text: 'Ketones become primary fuel', minHour: 30 },
-                    { text: 'Fat oxidation dominates', minHour: 42 }
+                    { text: 'Fat oxidation dominates', minHour: 42 },
+                    { text: 'Deep ketosis established', minHour: 54 },
+                    { text: 'Metabolic flexibility enhanced', minHour: 68 }
                 ]
             },
             {
@@ -1052,8 +1059,24 @@
                 colorVar: '--color-brain',
                 items: [
                     { text: 'Mental fog clears', minHour: 24 },
+                    { text: 'Norepinephrine-driven sharpness rising', minHour: 30 },
                     { text: 'Focus and calm increase', minHour: 36 },
-                    { text: 'Clarity peaks', minHour: 60 }
+                    { text: 'BDNF (brain growth factor) surging', minHour: 42 },
+                    { text: 'Clarity peaks', minHour: 60 },
+                    { text: 'Cognitive resilience deepened', minHour: 68 }
+                ]
+            },
+            {
+                id: 'hormonal',
+                title: 'Hormonal',
+                icon: '🔄',
+                colorVar: '--color-hormonal',
+                items: [
+                    { text: 'Ghrelin waves peak and begin subsiding', minHour: 8 },
+                    { text: 'Insulin at fasting minimum', minHour: 24 },
+                    { text: 'Growth hormone at sustained elevation', minHour: 36 },
+                    { text: 'Cortisol rhythm recalibrating', minHour: 48 },
+                    { text: 'Hormonal equilibrium approaching', minHour: 64 }
                 ]
             },
             {
@@ -1063,8 +1086,36 @@
                 colorVar: '--color-recovery',
                 items: [
                     { text: 'Growth hormone pulses rise', minHour: 18 },
+                    { text: 'Damaged protein clearance accelerating', minHour: 30 },
                     { text: 'Cellular repair intensifies', minHour: 40 },
-                    { text: 'Autophagy underway', minHour: 48 }
+                    { text: 'Autophagy underway', minHour: 48 },
+                    { text: 'Peak autophagy activity', minHour: 56 },
+                    { text: 'Stem cell regeneration signaling', minHour: 66 }
+                ]
+            },
+            {
+                id: 'immune',
+                title: 'Immune System',
+                icon: '🛡️',
+                colorVar: '--color-immune',
+                items: [
+                    { text: 'Old immune cells beginning turnover', minHour: 24 },
+                    { text: 'White blood cell recycling underway', minHour: 40 },
+                    { text: 'Immune system regeneration signaling', minHour: 54 },
+                    { text: 'Fresh immune cell production triggered', minHour: 66 }
+                ]
+            },
+            {
+                id: 'gut',
+                title: 'Gut Reset',
+                icon: '🦠',
+                colorVar: '--color-gut',
+                items: [
+                    { text: 'Digestive system in full rest mode', minHour: 12 },
+                    { text: 'Migrating motor complex sweeping clean', minHour: 20 },
+                    { text: 'Intestinal lining repair deepening', minHour: 40 },
+                    { text: 'Gut barrier integrity strengthening', minHour: 56 },
+                    { text: 'Microbiome composition shifting', minHour: 66 }
                 ]
             },
             {
@@ -1075,7 +1126,22 @@
                 items: [
                     { text: 'Inflammation begins to ease', minHour: 20 },
                     { text: 'Water retention drops', minHour: 32 },
-                    { text: 'Bloating reduces', minHour: 54 }
+                    { text: 'Pro-inflammatory cytokines declining', minHour: 42 },
+                    { text: 'Bloating reduces', minHour: 54 },
+                    { text: 'Joint and tissue inflammation quieting', minHour: 60 },
+                    { text: 'Systemic inflammatory reset', minHour: 70 }
+                ]
+            },
+            {
+                id: 'energy',
+                title: 'Energy',
+                icon: '🔋',
+                colorVar: '--color-energy',
+                items: [
+                    { text: 'Initial energy dip as glucose drops', minHour: 8 },
+                    { text: 'Energy stabilizing on ketone fuel', minHour: 28 },
+                    { text: 'Sustained energy without food peaks', minHour: 48 },
+                    { text: 'Physical endurance from fat adaptation', minHour: 62 }
                 ]
             }
         ];
